@@ -1,5 +1,7 @@
 # CLIPDraw Interactive
 
+![logo](clipdraw-interactive-submarine.png)
+
 ## Run locally
 
 ```sh
