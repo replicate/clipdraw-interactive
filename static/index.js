@@ -5,7 +5,7 @@ var prompt, promptValue, started, draw;
 
 window.onload = async function() {
   draw = SVG().addTo('body').attr({
-    viewBox: "-50 -50 324 324",
+    viewBox: "-10 -10 234 234",
     width: "100%",
     height: "100%",
   });
