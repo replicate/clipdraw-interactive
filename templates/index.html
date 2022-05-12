@@ -6,15 +6,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.2/svg.min.js"></script>
     <script src="/static/index.js"></script>
     <style>
+      html {
+          background-color: #FCFCFA;
+      }
+
       body, html {
-          height: 100%;
           margin: 0;
           padding: 0;
-          background-color: #FCFCFA;
+      }
+
+      #prompt {
+        background-color: rgba(255,255,255,0.7);
+        border-radius: 0.25em;
+        border: 1px solid slategray;
+        display: block;
+        font-family: Helvetica Neue;
+        font-size: 24px;
+        font-weight: 300;
+        margin: 1em auto;
+        padding: 0.25em 0.5em;
+        width: 66%;
+      }
+
+      svg {
+        position: absolute;
+        top: 0;
+        z-index: -1;
       }
     </style>
   </head>
   <body>
-    <input id="prompt" value="submarine" />
+    <input id="prompt" placeholder="enter prompt…" />
   </body>
 </html>

@@ -5,7 +5,7 @@ var prompt, promptValue, started, draw;
 
 window.onload = async function() {
   draw = SVG().addTo('body').attr({
-    viewBox: "-50 -50 324 324",
+    viewBox: "-10 -10 234 234",
     width: "100%",
     height: "100%",
   });
@@ -23,7 +23,7 @@ async function step(pathsString) {
   var resp = await fetch("/api/predict", {
     method: "POST",
     body: JSON.stringify({
-      prompt: "hello",
+      prompt: promptValue,
       starting_paths: pathsString,
     }),
     headers: {
