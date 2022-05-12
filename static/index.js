@@ -23,7 +23,7 @@ async function step(pathsString) {
   var resp = await fetch("/api/predict", {
     method: "POST",
     body: JSON.stringify({
-      prompt: "hello",
+      prompt: promptValue,
       starting_paths: pathsString,
     }),
     headers: {
