@@ -1,18 +1,45 @@
 // "a submarine as an oilpainting"
 const predictionID = "caol2b2hyndgvo67uqaxjl64dy";
 
+var prompt, promptValue, started, draw;
+
 window.onload = async function() {
-  const resp = await fetchPrediction(predictionID);
-  console.log("Number of outputs:", resp.output.length)
-
-  const paths = JSON.parse(resp.output[resp.output.length - 1]);
-
-  var draw = SVG().addTo('body').attr({
+  draw = SVG().addTo('body').attr({
     viewBox: "-50 -50 324 324",
     width: "100%",
     height: "100%",
   });
 
+  prompt = document.querySelector("#prompt");
+  prompt.onblur = changePrompt;
+  prompt.onkeypress = (e) => {
+    if (e.code == "Enter") {
+      prompt.blur();
+    }
+  };
+}
+
+async function step(pathsString) {
+  var resp = await fetch("/api/predict", {
+    method: "POST",
+    body: JSON.stringify({
+      prompt: "hello",
+      starting_paths: pathsString,
+    }),
+    headers: {
+      "Content-type": "application/json"
+    }
+  })
+  resp = await resp.json();
+  pathsString = resp["output"];
+  step(pathsString);
+  const paths = JSON.parse(pathsString);
+
+  display(paths);
+}
+
+function display(paths) {
+  draw.clear();
   for (var i = 0; i < paths.length; i++) {
     var path = paths[i];
     var pathString = pathToSVGPathString(path);
@@ -27,18 +54,13 @@ window.onload = async function() {
   }
 }
 
-async function fetchPrediction(predictionID) {
-  while (true) {
-    var resp = await fetch("/api/get/" + predictionID);
-    resp = await resp.json();
-    if (resp.status != "starting" && resp.output) {
-      return resp
-    }
-    await new Promise(r => setTimeout(r, 1000));
-    console.log("starting...");
+async function changePrompt() {
+  promptValue = prompt.value;
+  if (!started) {
+    started = true;
+    step();
   }
 }
-
 
 function strokeColorToSVGStroke(strokeColor) {
   return "rgb(" + strokeColor.slice(0, 3).map(c => Math.floor(c * 255)).join(",") + ")";
