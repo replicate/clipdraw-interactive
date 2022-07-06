@@ -19,22 +19,30 @@ window.onload = async function() {
   };
 }
 
-async function step(pathsString) {
-  var resp = await fetch("/api/predict", {
-    method: "POST",
-    body: JSON.stringify({
-      prompt: promptValue,
-      starting_paths: pathsString,
-    }),
-    headers: {
-      "Content-type": "application/json"
+async function step(paths) {
+  console.log("step")
+  try {
+    var resp = await fetch("/api/predict", {
+      method: "POST",
+      body: JSON.stringify({
+        prompt: promptValue,
+        starting_paths: paths,
+      }),
+      headers: {
+        "Content-type": "application/json"
+      }
+    })
+    if (!resp.ok) {
+      throw new Error(resp.statusText);
     }
-  })
-  resp = await resp.json();
-  pathsString = resp["output"];
-  step(pathsString);
-  const paths = JSON.parse(pathsString);
-
+    resp = await resp.json();
+  } catch (error) {
+    started = false;
+    console.log("Caught error:", error);
+    return;
+  }
+  paths = resp["output"];
+  step(paths);
   display(paths);
 }
 

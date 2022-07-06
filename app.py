@@ -1,11 +1,9 @@
+import json
 import time
-import os
-import requests
+import replicate
 from flask import Flask, jsonify, render_template, send_from_directory, request, abort
 
 app = Flask(__name__)
-
-token = os.environ["REPLICATE_API_TOKEN"]
 
 
 @app.route("/")
@@ -14,47 +12,35 @@ def index():
 
 
 @app.route("/api/predict", methods=["POST"])
-def start_prediction():
+def predict():
     body = request.get_json()
     prompt = body["prompt"]
     starting_paths = body.get("starting_paths", "")
 
-    resp = requests.post(
-        "https://api.replicate.com/v1/predictions",
-        json={
-            "input": {
-                "prompt": prompt,
-                "num_iterations": 5,
-                "display_frequency": 5,
-                "num_paths": 236,
-                "starting_paths": starting_paths,
-            },
-            "version": "9c193bfa1213b1656dedb3055d349df4b71c1b859ad6c7c564141a36a78fa898",
-        },
-        headers={
-            "Authorization": "Token " + token,
-            "Content-Type": "application/json",
-        },
-    ).json()
-    prediction_url = resp["urls"]["get"]
+    if starting_paths:
+        # hack json to all be floating points.
+        # TODO: this should happen in the model itself
+        for path in starting_paths:
+            if path["stroke_width"] == int(path["stroke_width"]):
+                path["stroke_width"] += .00001
+            for i, color in enumerate(path["stroke_color"]):
+                if color == int(color):
+                    path["stroke_color"][i] += .00001
+            for i, point in enumerate(path["points"]):
+                for j, p in enumerate(point):
+                    if p == int(p):
+                        path["points"][i][j] += .00001
 
-    print("prediction_url", prediction_url)
+        starting_paths = json.dumps(starting_paths)
 
-    while True:
-        resp = requests.get(prediction_url)
-        try:
-            prediction = resp.json()
-        except Exception:
-            import ipdb; ipdb.set_trace(context=11)
-        status = prediction["status"]
-        if status == "succeeded":
-            return jsonify({"output": prediction["output"][-1]})
-        if status in ("failed", "cancelled"):
-            import ipdb; ipdb.set_trace(context=11)
-            abort(500)
-
-        time.sleep(.1)
-        print("status", status)
+    resp = version.predict(
+        prompt=prompt,
+        starting_paths=starting_paths,
+        num_iterations=5,
+        num_paths=100,
+    )
+    output = json.loads(resp)
+    return jsonify({"output": output})
 
 
 @app.route("/static/<path:path>")
@@ -63,4 +49,8 @@ def send_static(path):
 
 
 if __name__ == "__main__":
+    model = replicate.models.get("evilstreak/clipdraw-interactive")
+    version = model.versions.get(
+        "8feca8c65270d6ea1b30080a5dc31382afc8316c895299add625ff97a789554c"
+    )
     app.run(debug=True)
