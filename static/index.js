@@ -95,8 +95,8 @@ function display(paths) {
       var path = paths[i];
       var pathString = pathToSVGPathString(path);
       const svgPath = svgPaths[i];
-      svgPath.animate(6000, 0, "now").ease("-").plot(pathString);
-      svgPath.animate(6000, 0, "now").attr({
+      svgPath.animate(7000, 0, "now").ease("-").plot(pathString);
+      svgPath.animate(7000, 0, "now").attr({
         stroke: strokeColorToSVGStroke(path.stroke_color),
         "stroke-width": 2 * path.stroke_width,
         "stroke-opacity": path.stroke_color[3],
