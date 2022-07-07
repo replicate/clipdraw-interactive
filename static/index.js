@@ -1,7 +1,7 @@
 // "a submarine as an oilpainting"
 const predictionID = "caol2b2hyndgvo67uqaxjl64dy";
 
-var prompt, promptValue, started, draw;
+var prompt, promptValue, started, draw, svgPaths;
 
 window.onload = async function() {
   draw = SVG().addTo('body').attr({
@@ -20,45 +20,88 @@ window.onload = async function() {
 }
 
 async function step(paths) {
-  console.log("step")
+  console.log("step");
   try {
-    var resp = await fetch("/api/predict", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt: promptValue,
-        starting_paths: paths,
-      }),
-      headers: {
-        "Content-type": "application/json"
-      }
-    })
-    if (!resp.ok) {
-      throw new Error(resp.statusText);
-    }
-    resp = await resp.json();
+    const predictionID = await startPrediction(paths);
+    paths = await waitForPrediction(predictionID);
   } catch (error) {
     started = false;
+    svgPaths = null;
     console.log("Caught error:", error);
     return;
   }
-  paths = resp["output"];
   step(paths);
   display(paths);
 }
 
+async function startPrediction(paths) {
+  var resp = await fetch("/api/predict", {
+    method: "POST",
+    body: JSON.stringify({
+      prompt: promptValue,
+      starting_paths: paths,
+    }),
+    headers: {
+      "Content-type": "application/json"
+    }
+  })
+  if (!resp.ok) {
+    throw new Error(resp.statusText);
+  }
+  resp = await resp.json();
+  return resp["prediction_id"]
+}
+
+async function waitForPrediction(predictionID) {
+  while (true) {
+    var resp = await fetch(`/api/predictions/${predictionID}`);
+    var resp = await resp.json();
+    const status = resp["status"]
+    switch (status) {
+      case "succeeded":
+        return resp["output"];
+      case "failed":
+      case "canceled":
+        throw new Error("Prediction " + status);
+      case "starting":
+        await new Promise(r => setTimeout(r, 1000));
+        break;
+      default:
+        await new Promise(r => setTimeout(r, 100));
+    }
+  }
+}
+
 function display(paths) {
-  draw.clear();
-  for (var i = 0; i < paths.length; i++) {
-    var path = paths[i];
-    var pathString = pathToSVGPathString(path);
-    draw.path(pathString).attr({
-      stroke: strokeColorToSVGStroke(path.stroke_color),
-      fill: "none",
-      "stroke-width": 2 * path.stroke_width,
-      "stroke-opacity": path.stroke_color[3],
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-    });
+  if (svgPaths == null) {
+    document.getElementById("loading").classList.remove("shown");
+    draw.clear();
+    svgPaths = [];
+    for (var i = 0; i < paths.length; i++) {
+      var path = paths[i];
+      var pathString = pathToSVGPathString(path);
+      const svgPath = draw.path(pathString).attr({
+        stroke: strokeColorToSVGStroke(path.stroke_color),
+        fill: "none",
+        "stroke-width": 2 * path.stroke_width,
+        "stroke-opacity": path.stroke_color[3],
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      });
+      svgPaths.push(svgPath);
+    }
+  } else {
+    for (var i = 0; i < paths.length; i++) {
+      var path = paths[i];
+      var pathString = pathToSVGPathString(path);
+      const svgPath = svgPaths[i];
+      svgPath.animate(6000, 0, "now").ease("-").plot(pathString);
+      svgPath.animate(6000, 0, "now").attr({
+        stroke: strokeColorToSVGStroke(path.stroke_color),
+        "stroke-width": 2 * path.stroke_width,
+        "stroke-opacity": path.stroke_color[3],
+      });
+    }
   }
 }
 
@@ -67,6 +110,7 @@ async function changePrompt() {
   if (!started) {
     started = true;
     step();
+    document.getElementById("loading").classList.add("shown");
   }
 }
 

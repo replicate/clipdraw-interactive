@@ -28,6 +28,21 @@
         width: 66%;
       }
 
+      #loading {
+          display: none;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 105px;
+          height: 105px;
+          margin-left: -52px;
+          margin-top: -52px;
+      }
+
+      #loading.shown {
+          display: block;
+      }
+
       svg {
         position: absolute;
         top: 0;
@@ -37,5 +52,6 @@
   </head>
   <body>
     <input id="prompt" placeholder="enter prompt…" />
+    <div id="loading"><img src="/static/loading.svg" /></div>
   </body>
 </html>
