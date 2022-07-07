@@ -1,6 +1,8 @@
-# CLIPDraw Interactive
+# Interactive CLIPDraw
 
-![logo](clipdraw-interactive-submarine.png)
+![logo](clipdraw-interactive-sea-monster.png)
+
+Interactive version of [CLIPDraw](https://replicate.com/kvfrans/clipdraw), running on https://interactive-clip-draw.vercel.app/
 
 ## Run locally
 
@@ -9,18 +11,14 @@ export REPLICATE_API_TOKEN=<my-api-token>
 python app.py
 ```
 
-Open https://localhost:5000 and see a rendering of a submarine.
+Open https://localhost:5000.
 
-The prediction ID is hardcoded in index.js. To get a new prediction ID, update the prompt in app.py and run the following snippet from the javacript console:
+## Deploy
 
-```js
-window.fetch(
-  "/api/start", {
-    method: "POST",
-  }
-).then(function(resp) {
-  return resp.json();
-}).then(function(resp) {
-  console.log(resp);
-});
-```
+Interactive CLIPDraw is deployed on [Vercel](https://vercel.com).
+
+To deploy your own version:
+* Create an account on Vercel
+* Install the [Vercel CLI](https://vercel.com/docs/cli)
+* `vercel login`
+* `vercel --prod`
