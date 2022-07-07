@@ -1,5 +1,4 @@
 import json
-import time
 import replicate
 from flask import (
     Flask,
@@ -7,8 +6,6 @@ from flask import (
     render_template,
     send_from_directory,
     request,
-    abort,
-    redirect,
 )
 
 app = Flask(__name__)
@@ -31,8 +28,6 @@ def predict():
         "8feca8c65270d6ea1b30080a5dc31382afc8316c895299add625ff97a789554c"
     )
 
-    print("input length", len(json.dumps(starting_paths)))
-
     prediction = replicate.predictions.create(
         version=version,
         input={
@@ -51,7 +46,6 @@ def get_prediction(prediction_id):
     prediction = replicate.predictions.get(prediction_id)
     output = None
     if prediction.output:
-        print("output length", len(prediction.output))
         output = json.loads(prediction.output)
     return jsonify({"output": output, "status": prediction.status})
 
@@ -59,17 +53,6 @@ def get_prediction(prediction_id):
 @app.route("/static/<path:path>")
 def send_static(path):
     return send_from_directory("static", path)
-
-
-@app.route("/test-302")
-def test_302():
-    attempt = int(request.args.get("attempt", "0"))
-    if attempt == 300:
-        return "OK"
-    else:
-        print("302", attempt)
-        time.sleep(1)
-        return redirect(f"/test-302?attempt={attempt + 1}", code=302)
 
 
 def hack_ints_to_floats(starting_paths):

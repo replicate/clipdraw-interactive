@@ -1,6 +1,3 @@
-// "a submarine as an oilpainting"
-const predictionID = "caol2b2hyndgvo67uqaxjl64dy";
-
 var prompt, promptValue, started, draw, svgPaths;
 
 window.onload = async function() {
@@ -107,7 +104,7 @@ function display(paths) {
 
 async function changePrompt() {
   promptValue = prompt.value;
-  if (!started) {
+  if (!started && promptValue) {
     started = true;
     step();
     document.getElementById("loading").classList.add("shown");
