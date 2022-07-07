@@ -48,10 +48,35 @@
         top: 0;
         z-index: -1;
       }
+
+      #footer {
+          opacity: 0.8;
+          position: fixed;
+          width: 50%;
+          max-width: 500px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 4px;
+
+          bottom: 10px;
+          text-align: center;
+          color: #555;
+          /*background-color: rgba(255,255,255,0.7);*/
+          background-color: rgba(255, 247, 145, 1);
+
+          border-radius: 0.25em;
+          font-family: Helvetica Neue;
+      }
+
+      #footer a {
+          color: #222;
+      }
+
     </style>
   </head>
   <body>
     <input id="prompt" placeholder="enter prompt…" />
     <div id="loading"><img src="/static/loading.svg" /></div>
+    <div id="footer">Built with 🚀 <a target="_blank" href="https://replicate.com/evilstreak/clipdraw-interactive">Replicate</a>, based on Kevin Frans' <a target="_blank" href="https://replicate.com/kvfrans/clipdraw">CLIPDraw</a></div>
   </body>
 </html>
