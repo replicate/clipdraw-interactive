@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ### conda
 
 ```sh
-conda create -n clipdraw "python=3.8"
+conda create -n clipdraw
 conda activate clipdraw
 pip install -r requirements.txt
 ```
